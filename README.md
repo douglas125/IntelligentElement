@@ -11,7 +11,8 @@ Our proposed Intelligent Element aims at automating the task of handling multipl
 
 ## TODO
 
-- [x] Create reporitory 
+- [x] Create repository 
+- [x] Initial exploration of model and data automation 
 - [ ] Create Python abstract class
 - [ ] Automate model creation
 - [ ] Automate generation of data with Keras generator
