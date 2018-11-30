@@ -54,7 +54,7 @@ class IntelligentElement:
     for complex nested structures
     '''
     
-    def __init__(self, data, model, input_shape, preprocess_function = None, children_ie = None, name=None):
+    def __init__(self, data, model, input_shape, preprocess_function = None, children_ie = None, name=None, val_data=None, test_data=None):
         '''
         Initializes the IntelligentElement instance with its data, which must be a list.
         
@@ -97,6 +97,9 @@ class IntelligentElement:
             
         self.name=name
         self.data = data
+        self.val_data = val_data
+        self.test_data = test_data
+        
         self.input_shape = input_shape
         self.children_ie = children_ie
         self.model = model
@@ -137,12 +140,19 @@ class IntelligentElement:
         return ret_model, inps, o
     
     
-    def get_batch(self, indices):
+    def get_batch(self, indices, from_set='train'):
         '''
         Retrieves a batch of data as requested in indices
         '''
         inps=[]
-        batch_data = [self.data[i] for i in indices]
+        
+        assert from_set in ['train', 'val', 'test'], 'from_set must be either train, val or test'
+        if from_set == 'train':
+            batch_data = [self.data[i] for i in indices]
+        elif from_set == 'val':
+            batch_data = [self.val_data[i] for i in indices]
+        elif from_set == 'test':
+            batch_data = [self.test_data[i] for i in indices]
 
         if self.children_ie is not None:
             for c in self.children_ie:
