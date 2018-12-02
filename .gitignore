@@ -1,5 +1,6 @@
 examples/networking/PCData/
 examples/relationaldb/elodata/
+*.h5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

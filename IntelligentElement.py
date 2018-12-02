@@ -191,3 +191,74 @@ class IntelligentElement:
             
             
         return inps
+    
+    
+############
+# Generator
+############
+
+from keras.utils import Sequence
+
+class IEDataGenerator(Sequence):
+    'Generates data for Keras'
+    def __init__(self, ie, labels, from_set = 'train', batch_size=128, labeltype=int, shuffle=True):
+        
+        'Initialization'
+        'labeltype - int for category outputs, float for regression'
+        
+        self.ie = ie
+        
+        self.batch_size = batch_size
+        self.labels = labels
+        self.labeltype = labeltype
+        self.from_set = from_set
+        
+        assert from_set in ['train', 'val', 'test'], 'from_set must be either train, val or test'
+        
+        if from_set=='train':
+            self.nsamples = len(ie.data)
+        elif from_set=='val':
+            self.nsamples = len(ie.val_data)
+        elif from_set=='test':
+            self.nsamples = len(ie.test_data)
+        
+        assert self.nsamples == len(labels), 'Length of labels must match length of data'
+        
+        self.shuffle = shuffle
+        self.on_epoch_end()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.floor(self.nsamples / self.batch_size))
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
+
+        # Generate data
+        X, y = self.__data_generation(indexes)
+
+        return X, y
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(self.nsamples)
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+
+    def __data_generation(self, list_IDs_temp):
+        'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
+        # Initialization
+        y = np.empty((self.batch_size,), dtype=self.labeltype)
+
+        #store samples
+        X = self.ie.get_batch(list_IDs_temp, from_set = self.from_set)
+        
+        # Generate data
+        for i, ID in enumerate(list_IDs_temp):
+
+            # Store class
+            y[i] = self.labels[ID]
+
+        return X, y
